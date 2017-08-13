@@ -17,26 +17,41 @@ class ListContacts extends Component {
         this.setState({ query: query.trim() })
     }
 
+    clearQuery = () => {
+        this.setState({query: ''})
+    }
+
     render () {
+        const {contacts, deleteContact} = this.props
+        const {query} = this.state
         let matchedContacts;
 
-        if (this.state.query) {
-            const match = new RegExp(escapeRegExp(this.state.query), 'i')
-            matchedContacts = this.props.contacts.filter((c) => match.test(c.name))
+        if (query) {
+            const match = new RegExp(escapeRegExp(query), 'i')
+            matchedContacts = contacts.filter((c) => match.test(c.name))
         } else {
-            matchedContacts = this.props.contacts
+            matchedContacts = contacts
         }
 
         matchedContacts.sort(sortBy('name'));
         return (
             <div className='list-contacts'>
-                <input 
-                    className='search-contacts'
-                    type='text'
-                    placeholder='Search Contacts'
-                    value={this.state.query}
-                    onChange={(event) => this.updateQuery(event.target.value)}
-                />
+                <div className='list-contacts-top'>
+                    <input 
+                        className='search-contacts'
+                        type='text'
+                        placeholder='Search Contacts'
+                        value={query}
+                        onChange={(event) => this.updateQuery(event.target.value)}
+                    />
+                </div>
+
+                {matchedContacts.length !== contacts.length && (
+                    <div className='showing-contacts'>
+                        <span>Showing {matchedContacts.length} of {contacts.length} total.</span>
+                        <button onClick={this.clearQuery}>Show All</button>
+                    </div>
+                )}
                 <ol className='contact-list'>
                     {matchedContacts.map(contact => (
                         <li key={ contact.id } className='contact-list-item'>
@@ -47,7 +62,7 @@ class ListContacts extends Component {
                                 <p>{contact.name}</p>
                                 <p>{contact.email}</p>
                             </div>
-                            <button onClick={() => this.props.deleteContact(contact)} className='contact-remove'>Remove</button>
+                            <button onClick={() => deleteContact(contact)} className='contact-remove'>Remove</button>
                         </li>
                     ))}
                 </ol>
